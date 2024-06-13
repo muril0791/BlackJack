@@ -27,6 +27,8 @@ const store = createStore({
     resultsAvailable: false,
     availableActions: {},
     lastBet: 0,
+    gameHistory: [],
+    nightMode: true,
   },
   mutations: {
     SET_GAME_STATE(
@@ -91,6 +93,12 @@ const store = createStore({
     SET_GAME_STARTED(state, started) {
       state.gameStarted = started;
     },
+    ADD_TO_HISTORY(state, gameResult) {
+      state.gameHistory.push(gameResult);
+    },
+    TOGGLE_NIGHT_MODE(state) {
+      state.nightMode = !state.nightMode;
+    },
   },
   actions: {
     async startGame({ commit, state, dispatch }) {
@@ -123,19 +131,36 @@ const store = createStore({
           if (calculateHandValue(currentHand) > 21) {
             commit("SET_MESSAGE", "Player busts! Dealer wins.");
             commit("SET_GAME_STARTED", false);
+            commit("ADD_TO_HISTORY", {
+              result: "Dealer wins",
+              playerHand: [...currentHand],
+              dealerHand: [...state.dealerHand],
+            });
           }
           break;
         case "stand":
           dealerPlay(state.deck, state.dealerHand);
-          commit("SET_MESSAGE", checkWinner(currentHand, state.dealerHand));
+          const result = checkWinner(currentHand, state.dealerHand);
+          commit("SET_MESSAGE", result);
           commit("SET_GAME_STARTED", false);
+          commit("ADD_TO_HISTORY", {
+            result,
+            playerHand: [...currentHand],
+            dealerHand: [...state.dealerHand],
+          });
           break;
         case "double":
           if (doubleDown(state.deck, currentHand)) {
             commit("SET_BET", state.bet * 2);
             dealerPlay(state.deck, state.dealerHand);
-            commit("SET_MESSAGE", checkWinner(currentHand, state.dealerHand));
+            const doubleResult = checkWinner(currentHand, state.dealerHand);
+            commit("SET_MESSAGE", doubleResult);
             commit("SET_GAME_STARTED", false);
+            commit("ADD_TO_HISTORY", {
+              result: doubleResult,
+              playerHand: [...currentHand],
+              dealerHand: [...state.dealerHand],
+            });
           }
           break;
         case "split":
@@ -156,6 +181,11 @@ const store = createStore({
             commit("SET_BALANCE", state.balance + state.bet / 2);
             commit("SET_BET", 0);
             commit("SET_GAME_STARTED", false);
+            commit("ADD_TO_HISTORY", {
+              result: "Player surrenders",
+              playerHand: [...currentHand],
+              dealerHand: [...state.dealerHand],
+            });
           }
           break;
         default:
@@ -200,13 +230,28 @@ const store = createStore({
         commit("SET_MESSAGE", "Player wins with a Blackjack!");
         commit("SET_BALANCE", state.balance + state.bet * 2.5);
         commit("SET_GAME_STARTED", false);
+        commit("ADD_TO_HISTORY", {
+          result: "Player wins with a Blackjack",
+          playerHand: [...state.playerHands[0]],
+          dealerHand: [...state.dealerHand],
+        });
       } else if (dealerValue === 21 && playerValue !== 21) {
         commit("SET_MESSAGE", "Dealer wins with a Blackjack!");
         commit("SET_GAME_STARTED", false);
+        commit("ADD_TO_HISTORY", {
+          result: "Dealer wins with a Blackjack",
+          playerHand: [...state.playerHands[0]],
+          dealerHand: [...state.dealerHand],
+        });
       } else if (dealerValue === 21 && playerValue === 21) {
         commit("SET_MESSAGE", "Push! Both have Blackjack.");
         commit("SET_BALANCE", state.balance + state.bet);
         commit("SET_GAME_STARTED", false);
+        commit("ADD_TO_HISTORY", {
+          result: "Push! Both have Blackjack",
+          playerHand: [...state.playerHands[0]],
+          dealerHand: [...state.dealerHand],
+        });
       }
     },
     updateAvailableActions({ commit, state }) {
@@ -241,6 +286,9 @@ const store = createStore({
       );
       dispatch("startGame");
     },
+    toggleNightMode({ commit }) {
+      commit("TOGGLE_NIGHT_MODE");
+    },
   },
   getters: {
     getPlayerHands: (state) => state.playerHands,
@@ -256,6 +304,8 @@ const store = createStore({
     isResultsAvailable: (state) => state.resultsAvailable,
     getAvailableActions: (state) => state.availableActions,
     getLastBet: (state) => state.lastBet,
+    getGameHistory: (state) => state.gameHistory,
+    isNightMode: (state) => state.nightMode,
   },
 });
 

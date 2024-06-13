@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "howler": "^2.2.4",
     "pixi.js": "^8.1.6",
     "vue": "^3.4.21",
     "vuex": "^4.0.2"

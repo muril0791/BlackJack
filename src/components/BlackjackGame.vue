@@ -1,11 +1,17 @@
 <template>
-  <div class="game-container">
+  <div :class="['game-container', { 'night-mode': isNightMode }]">
     <LoadingScreen v-if="loading" />
-    <div class="table">
-      <DealerHand v-if="dealerHand.length" :hand="dealerHand" />
-      <div class="positions">
-        <PositionSelection v-if="gameStarted && !positionsSelected" @select-positions="selectPositions" />
-        <PlayerHands v-if="playerHands.length" :hands="playerHands" />
+    <div class="menu-buttons">
+      <button class="floating-button" @click="toggleNightMode">Night Mode</button>
+      <button class="floating-button" @click="toggleHistory">History</button>
+    </div>
+    <div class="game-area">
+      <div class="table">
+        <DealerHand v-if="dealerHand.length" :hand="dealerHand" />
+        <div class="positions">
+          <PositionSelection v-if="gameStarted && !positionsSelected" @select-positions="selectPositions" />
+          <PlayerHands v-if="playerHands.length" :hands="playerHands" />
+        </div>
       </div>
       <div class="controls">
         <GameControls v-if="gameStarted && positionsSelected" @action="handleAction" :available-actions="availableActions" />
@@ -21,6 +27,7 @@
       <div class="bet">Current Bet: ${{ bet }}</div>
     </div>
     <div v-if="showPopup" class="popup">{{ message }}</div>
+    <GameHistory v-if="showHistory" :history="gameHistory" @close="toggleHistory"/>
   </div>
 </template>
 
@@ -34,6 +41,7 @@ import GameControls from './GameControls.vue';
 import ResultDisplay from './ResultDisplay.vue';
 import GameInfo from './GameInfo.vue';
 import LoadingScreen from './LoadingScreen.vue';
+import GameHistory from './GameHistory.vue';
 
 export default {
   name: 'BlackjackGame',
@@ -46,10 +54,12 @@ export default {
     ResultDisplay,
     GameInfo,
     LoadingScreen,
+    GameHistory,
   },
   data() {
     return {
       showPopup: false,
+      showHistory: false,
     };
   },
   computed: {
@@ -65,6 +75,8 @@ export default {
       results: state => state.results,
       resultsAvailable: state => state.resultsAvailable,
       availableActions: state => state.availableActions,
+      gameHistory: state => state.gameHistory,
+      isNightMode: state => state.nightMode,
     }),
   },
   watch: {
@@ -85,9 +97,13 @@ export default {
       'selectPositions',
       'rebet',
       'newBet',
+      'toggleNightMode',
     ]),
     resetGame() {
       this.newBet();
+    },
+    toggleHistory() {
+      this.showHistory = !this.showHistory;
     },
   },
   mounted() {
@@ -113,6 +129,42 @@ export default {
   width: 100%;
   max-width: 1200px;
   margin: auto;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.game-container.night-mode {
+  background-color: #1a1a1a;
+  color: #cccccc;
+}
+
+.menu-buttons {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.floating-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
+}
+
+.floating-button:hover {
+  background-color: #2980b9;
+}
+
+.game-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .table {
