@@ -29,8 +29,55 @@ const store = createStore({
     lastBet: 0,
   },
   mutations: {
-    SET_DECK(state, deck) {
+    SET_GAME_STATE(
+      state,
+      { deck, playerHands, dealerHand, currentHandIndex, gameStarted, loading }
+    ) {
       state.deck = deck;
+      state.playerHands = playerHands;
+      state.dealerHand = dealerHand;
+      state.currentHandIndex = currentHandIndex;
+      state.gameStarted = gameStarted;
+      state.loading = loading;
+    },
+    SET_BALANCE(state, balance) {
+      state.balance = balance;
+    },
+    SET_MESSAGE(state, message) {
+      state.message = message;
+    },
+    SET_BET(state, bet) {
+      state.bet = bet;
+    },
+    SET_AVAILABLE_ACTIONS(state, actions) {
+      state.availableActions = actions;
+    },
+    SET_RESULTS(state, results) {
+      state.results = results;
+      state.resultsAvailable = true;
+    },
+    RESET_GAME(state) {
+      state.deck = [];
+      state.playerHands = [];
+      state.dealerHand = [];
+      state.currentHandIndex = 0;
+      state.message = "";
+      state.gameStarted = false;
+      state.loading = false;
+      state.positionsSelected = false;
+      state.results = [];
+      state.resultsAvailable = false;
+      state.availableActions = {};
+      state.bet = 0;
+    },
+    SET_LOADING(state, loading) {
+      state.loading = loading;
+    },
+    SET_LAST_BET(state, bet) {
+      state.lastBet = bet;
+    },
+    SET_POSITIONS_SELECTED(state, selected) {
+      state.positionsSelected = selected;
     },
     SET_PLAYER_HANDS(state, hands) {
       state.playerHands = hands;
@@ -41,57 +88,32 @@ const store = createStore({
     SET_CURRENT_HAND_INDEX(state, index) {
       state.currentHandIndex = index;
     },
-    SET_MESSAGE(state, message) {
-      state.message = message;
-    },
-    SET_BALANCE(state, balance) {
-      state.balance = balance;
-    },
-    SET_BET(state, bet) {
-      state.bet = bet;
-    },
     SET_GAME_STARTED(state, started) {
       state.gameStarted = started;
     },
-    SET_LOADING(state, loading) {
-      state.loading = loading;
-    },
-    SET_POSITIONS_SELECTED(state, selected) {
-      state.positionsSelected = selected;
-    },
-    SET_RESULTS(state, results) {
-      state.results = results;
-    },
-    SET_RESULTS_AVAILABLE(state, available) {
-      state.resultsAvailable = available;
-    },
-    SET_AVAILABLE_ACTIONS(state, actions) {
-      state.availableActions = actions;
-    },
-    SET_LAST_BET(state, bet) {
-      state.lastBet = bet;
-    },
   },
   actions: {
-    startGame({ commit, state, dispatch }) {
+    async startGame({ commit, state, dispatch }) {
       if (state.bet <= 0) {
         commit("SET_MESSAGE", "Please place a bet to start the game");
         return;
       }
       commit("SET_LOADING", true);
-      setTimeout(() => {
-        const deck = shuffleDeck(createDeck());
-        commit("SET_DECK", deck);
-        commit("SET_PLAYER_HANDS", [[]]);
-        commit("SET_DEALER_HAND", []);
-        commit("SET_CURRENT_HAND_INDEX", 0);
-        commit("SET_MESSAGE", "");
-        commit("SET_GAME_STARTED", true);
-        initialDeal(deck, state.playerHands[0], state.dealerHand);
-        dispatch("checkForBlackjack");
-        commit("SET_LOADING", false);
-        dispatch("updateAvailableActions");
-      }, 1000);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const deck = shuffleDeck(createDeck());
+      const playerHands = [[]];
+      const dealerHand = [];
+      commit("SET_GAME_STATE", {
+        deck,
+        playerHands,
+        dealerHand,
+        currentHandIndex: 0,
+        gameStarted: true,
+        loading: false,
+      });
+      initialDeal(deck, playerHands[0], dealerHand);
+      dispatch("checkForBlackjack");
+      dispatch("updateAvailableActions");
     },
     handleAction({ commit, state, dispatch }, action) {
       const currentHand = state.playerHands[state.currentHandIndex];
@@ -158,32 +180,17 @@ const store = createStore({
         commit("SET_MESSAGE", "Insufficient balance to place bet");
       }
     },
-    selectPositions({ commit, dispatch }, positions) {
-      if (!Array.isArray(positions)) {
-        throw new TypeError("Positions should be an array.");
-      }
-      commit("SET_POSITIONS_SELECTED", true);
-      commit(
-        "SET_PLAYER_HANDS",
-        positions.map(() => [])
-      );
-      dispatch("startGame");
-    },
     rebet({ commit, state, dispatch }) {
       if (state.balance >= state.lastBet) {
         commit("SET_BET", state.lastBet);
         commit("SET_BALANCE", state.balance - state.lastBet);
-        commit("SET_GAME_STARTED", true);
         dispatch("startGame");
       } else {
         commit("SET_MESSAGE", "Insufficient balance to rebet");
       }
     },
     newBet({ commit }) {
-      commit("SET_BET", 0);
-      commit("SET_GAME_STARTED", false);
-      commit("SET_POSITIONS_SELECTED", false);
-      commit("SET_RESULTS_AVAILABLE", false);
+      commit("RESET_GAME");
     },
     checkForBlackjack({ commit, state }) {
       const playerValue = calculateHandValue(state.playerHands[0]);
@@ -192,16 +199,13 @@ const store = createStore({
       if (playerValue === 21 && dealerValue !== 21) {
         commit("SET_MESSAGE", "Player wins with a Blackjack!");
         commit("SET_BALANCE", state.balance + state.bet * 2.5);
-        commit("SET_BET", 0);
         commit("SET_GAME_STARTED", false);
       } else if (dealerValue === 21 && playerValue !== 21) {
         commit("SET_MESSAGE", "Dealer wins with a Blackjack!");
-        commit("SET_BET", 0);
         commit("SET_GAME_STARTED", false);
       } else if (dealerValue === 21 && playerValue === 21) {
         commit("SET_MESSAGE", "Push! Both have Blackjack.");
         commit("SET_BALANCE", state.balance + state.bet);
-        commit("SET_BET", 0);
         commit("SET_GAME_STARTED", false);
       }
     },
@@ -225,6 +229,17 @@ const store = createStore({
         canSurrender: state.gameStarted && currentHand.length === 2,
       };
       commit("SET_AVAILABLE_ACTIONS", actions);
+    },
+    selectPositions({ commit, dispatch }, positions) {
+      if (!Array.isArray(positions)) {
+        throw new TypeError("Positions should be an array.");
+      }
+      commit("SET_POSITIONS_SELECTED", true);
+      commit(
+        "SET_PLAYER_HANDS",
+        positions.map(() => [])
+      );
+      dispatch("startGame");
     },
   },
   getters: {

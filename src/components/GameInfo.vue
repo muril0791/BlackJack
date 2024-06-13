@@ -1,3 +1,4 @@
+<!--GameInfo.vue -->
 <template>
   <div class="info-container">
     <div class="message">{{ message }}</div>

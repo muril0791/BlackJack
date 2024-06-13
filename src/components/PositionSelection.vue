@@ -1,3 +1,4 @@
+<!--PositionSelection.vue -->
 <template>
   <div class="position-selection">
     <button @click="selectPosition('left')">Left</button>

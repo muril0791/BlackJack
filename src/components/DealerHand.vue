@@ -1,3 +1,4 @@
+<!--DealerHands.vue -->
 <template>
   <div class="dealer-hand">
     <Card v-for="(card, index) in hand" :key="index" :card="card" />

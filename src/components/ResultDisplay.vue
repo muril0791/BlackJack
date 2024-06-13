@@ -1,3 +1,4 @@
+<!--ResultDisplay.vue -->
 <template>
   <div class="result-display">
     <p>{{ results }}</p>

@@ -1,7 +1,6 @@
+<!--App.vue.vue -->
 <template>
-  
     <BlackjackGame />
-  
 </template>
 
 <script>

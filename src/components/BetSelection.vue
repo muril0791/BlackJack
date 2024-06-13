@@ -1,9 +1,6 @@
 <template>
   <div class="bet-selection">
-    <button @click="placeBet(10)">10</button>
-    <button @click="placeBet(20)">20</button>
-    <button @click="placeBet(50)">50</button>
-    <button @click="placeBet(100)">100</button>
+    <button v-for="amount in [10, 20, 50, 100]" :key="amount" :disabled="amount > balance" @click="placeBet(amount)">{{ amount }}</button>
   </div>
 </template>
 
@@ -15,11 +12,7 @@ export default {
   },
   methods: {
     placeBet(amount) {
-      if (this.balance >= amount) {
-        this.$emit('place-bet', amount);
-      } else {
-        alert('Insufficient balance');
-      }
+      this.$emit('place-bet', amount);
     },
   },
 };
@@ -44,7 +37,12 @@ export default {
   transition: background-color 0.3s;
 }
 
-.bet-selection button:hover {
+.bet-selection button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+.bet-selection button:hover:not(:disabled) {
   background-color: #3498db;
 }
 </style>

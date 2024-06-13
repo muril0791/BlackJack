@@ -1,3 +1,4 @@
+<!--GameControls.vue -->
 <template>
   <div class="controls">
     <button @click="emitAction('hit')" :disabled="!availableActions.canHit">Hit</button>

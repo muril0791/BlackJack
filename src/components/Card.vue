@@ -1,3 +1,4 @@
+<!--Card.vue -->
 <template>
   <div class="card">
     <img :src="`/cards/${cardImage}`" alt="card" />

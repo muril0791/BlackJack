@@ -1,3 +1,4 @@
+<!--PlayerHands.vue -->
 <template>
   <div class="player-hands">
     <div v-for="(hand, index) in hands" :key="index" class="player-hand">

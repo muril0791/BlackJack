@@ -86,6 +86,15 @@ export default {
       'rebet',
       'newBet',
     ]),
+    resetGame() {
+      this.newBet();
+    },
+  },
+  mounted() {
+    this.resetGame();
+  },
+  beforeDestroy() {
+    this.resetGame();
   },
 };
 </script>
