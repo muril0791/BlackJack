@@ -1,223 +1,64 @@
 <template>
   <div class="game-container">
-    <div class="dealer-hand">
-      <Card v-for="(card, index) in dealerHand" :key="index" :card="card" />
-      <div v-if="dealerHand.length" class="hand-value">Total: {{ calculateHandValue(dealerHand) }}</div>
-    </div>
-    <div class="player-hand">
-      <Card v-for="(card, index) in playerHand" :key="index" :card="card" />
-      <div v-if="playerHand.length" class="hand-value">Total: {{ calculateHandValue(playerHand) }}</div>
-    </div>
-    <div class="controls-container">
-      <Controls
-        @hit="hit"
-        @stand="stand"
-        @double="double"
-        @split="split"
-        @insurance="insurance"
-        @surrender="surrender"
-        @bet="placeBet"
-        :canDouble="canDouble"
-        :canSplit="canSplit"
-        :canInsurance="canInsurance"
-        :canSurrender="canSurrender"
-        :balance="balance"
-        :bet="bet"
-        :gameStarted="gameStarted"
-      />
-    </div>
-    <div class="info-container">
-      <div class="message">{{ message }}</div>
-      <div class="balance">Balance: ${{ balance }}</div>
-      <div class="bet">Current Bet: ${{ bet }}</div>
-      <button @click="restartGame" class="restart-button">Restart Game</button>
-    </div>
+    <LoadingScreen v-if="loading" />
+    <DealerHand v-if="dealerHand.length" :hand="dealerHand" />
+    <PlayerHands v-if="playerHands.length" :hands="playerHands" />
+    <BetSelection v-if="!gameStarted" @place-bet="placeBet" :balance="balance" />
+    <PositionSelection v-if="gameStarted && !positionsSelected" @select-positions="selectPositions" />
+    <GameControls v-if="gameStarted && positionsSelected" @action="handleAction" :available-actions="availableActions" />
+    <ResultDisplay v-if="!gameStarted && resultsAvailable" :results="results" @rebet="rebet" @new-bet="newBet" />
+    <GameInfo :message="message" :balance="balance" :bet="bet" @restart="restartGame" />
   </div>
 </template>
 
 <script>
-import { createDeck, shuffleDeck, drawCard } from '../logic/deck';
-import { initialDeal, dealerPlay, checkWinner, doubleDown, splitHand, offerInsurance, surrender } from '../logic/game';
-import { calculateHandValue } from '../logic/utils';
-import Card from './Card.vue';
-import Controls from './Controls.vue';
+import { mapState, mapActions } from 'vuex';
+import DealerHand from './DealerHand.vue';
+import PlayerHands from './PlayerHands.vue';
+import BetSelection from './BetSelection.vue';
+import PositionSelection from './PositionSelection.vue';
+import GameControls from './GameControls.vue';
+import ResultDisplay from './ResultDisplay.vue';
+import GameInfo from './GameInfo.vue';
+import LoadingScreen from './LoadingScreen.vue';
 
 export default {
   name: 'BlackjackGame',
-  components: { Card, Controls },
-  data() {
-    return {
-      deck: [],
-      playerHand: [],
-      dealerHand: [],
-      splitHands: [],
-      currentHandIndex: 0,
-      message: '',
-      balance: 1000,
-      bet: 0,
-      gameStarted: false,
-      loading: true,
-    };
-  },
-  methods: {
-    startGame() {
-      if (this.bet <= 0) {
-        this.message = 'Please place a bet to start the game';
-        return;
-      }
-
-      this.loading = true;
-      setTimeout(() => {
-        this.deck = shuffleDeck(createDeck());
-        this.playerHand = [];
-        this.dealerHand = [];
-        this.splitHands = [];
-        this.currentHandIndex = 0;
-        this.message = '';
-        this.gameStarted = true;
-        initialDeal(this.deck, this.playerHand, this.dealerHand);
-        this.checkForBlackjack();
-        this.loading = false;
-      }, 1000);
-    },
-    hit() {
-      if (!this.gameStarted) {
-        this.message = 'Please place a bet to start the game';
-        return;
-      }
-
-      this.playerHand.push(drawCard(this.deck));
-      if (calculateHandValue(this.playerHand) > 21) {
-        this.message = 'Player busts! Dealer wins.';
-        this.gameStarted = false;
-      }
-    },
-    stand() {
-      if (!this.gameStarted) {
-        this.message = 'Please place a bet to start the game';
-        return;
-      }
-
-      dealerPlay(this.deck, this.dealerHand);
-      this.message = checkWinner(this.playerHand, this.dealerHand);
-      this.updateBalance();
-      this.gameStarted = false;
-    },
-    double() {
-      if (!this.gameStarted) {
-        this.message = 'Please place a bet to start the game';
-        return;
-      }
-
-      if (doubleDown(this.deck, this.playerHand)) {
-        this.bet *= 2;
-        dealerPlay(this.deck, this.dealerHand);
-        this.message = checkWinner(this.playerHand, this.dealerHand);
-        this.updateBalance();
-        this.gameStarted = false;
-      }
-    },
-    split() {
-      if (!this.gameStarted) {
-        this.message = 'Please place a bet to start the game';
-        return;
-      }
-
-      const splitResult = splitHand(this.deck, this.playerHand);
-      if (splitResult) {
-        this.splitHands = splitResult;
-        this.playerHand = this.splitHands[this.currentHandIndex];
-      }
-    },
-    insurance() {
-      if (!this.gameStarted) {
-        this.message = 'Please place a bet to start the game';
-        return;
-      }
-
-      if (offerInsurance(this.dealerHand)) {
-        this.message = 'Insurance offered';
-      }
-    },
-    surrender() {
-      if (!this.gameStarted) {
-        this.message = 'Please place a bet to start the game';
-        return;
-      }
-
-      if (surrender(this.playerHand)) {
-        this.message = 'Player surrenders. Half bet returned.';
-        this.balance += this.bet / 2;
-        this.bet = 0;
-        this.gameStarted = false;
-      }
-    },
-    placeBet(amount) {
-      if (this.gameStarted) {
-        this.message = 'Finish the current game before placing a new bet';
-        return;
-      }
-
-      if (this.balance >= amount) {
-        this.bet = amount;
-        this.balance -= amount;
-        this.startGame();
-      } else {
-        this.message = 'Insufficient balance to place bet';
-      }
-    },
-    updateBalance() {
-      if (this.message === 'Player wins') {
-        this.balance += this.bet * 2;
-      } else if (this.message === 'Push') {
-        this.balance += this.bet;
-      }
-      this.bet = 0;
-    },
-    restartGame() {
-      this.balance = 1000;
-      this.bet = 0;
-      this.message = '';
-      this.gameStarted = false;
-      this.startGame();
-    },
-    checkForBlackjack() {
-      const playerValue = calculateHandValue(this.playerHand);
-      const dealerValue = calculateHandValue(this.dealerHand);
-
-      if (playerValue === 21 && dealerValue !== 21) {
-        this.message = 'Player wins with a Blackjack!';
-        this.balance += this.bet * 2.5;
-        this.bet = 0;
-        this.gameStarted = false;
-      } else if (dealerValue === 21 && playerValue !== 21) {
-        this.message = 'Dealer wins with a Blackjack!';
-        this.bet = 0;
-        this.gameStarted = false;
-      } else if (dealerValue === 21 && playerValue === 21) {
-        this.message = 'Push! Both have Blackjack.';
-        this.balance += this.bet;
-        this.bet = 0;
-        this.gameStarted = false;
-      }
-    },
-    calculateHandValue(hand) {
-      return calculateHandValue(hand);
-    }
+  components: {
+    DealerHand,
+    PlayerHands,
+    BetSelection,
+    PositionSelection,
+    GameControls,
+    ResultDisplay,
+    GameInfo,
+    LoadingScreen,
   },
   computed: {
-    canDouble() {
-      return this.playerHand.length === 2 && this.bet <= this.balance;
-    },
-    canSplit() {
-      return this.playerHand.length === 2 && this.playerHand[0].value === this.playerHand[1].value && this.bet <= this.balance;
-    },
-    canInsurance() {
-      return offerInsurance(this.dealerHand);
-    },
-    canSurrender() {
-      return surrender(this.playerHand);
-    },
+    ...mapState({
+      dealerHand: state => state.dealerHand,
+      playerHands: state => state.playerHands,
+      balance: state => state.balance,
+      bet: state => state.bet,
+      message: state => state.message,
+      gameStarted: state => state.gameStarted,
+      loading: state => state.loading,
+      positionsSelected: state => state.positionsSelected,
+      results: state => state.results,
+      resultsAvailable: state => state.resultsAvailable,
+      availableActions: state => state.availableActions,
+    }),
+  },
+  methods: {
+    ...mapActions([
+      'startGame',
+      'handleAction',
+      'placeBet',
+      'selectPositions',
+      'rebet',
+      'newBet',
+      'restartGame',
+    ]),
   },
 };
 </script>

@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "pixi.js": "^8.1.6",
-    "vue": "^3.4.21"
+    "vue": "^3.4.21",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

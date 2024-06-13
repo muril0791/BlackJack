@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  
     <BlackjackGame />
-  </div>
+  
 </template>
 
 <script>
@@ -23,5 +23,6 @@ export default {
   align-items: center;
   height: 100vh;
   background-color: #2c3e50;
+  overflow: hidden;
 }
 </style>
