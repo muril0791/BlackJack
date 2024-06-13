@@ -13,9 +13,14 @@
       </div>
     </div>
     <div class="info">
-      <GameInfo :message="message" :balance="balance" :bet="bet" @restart="restartGame" />
+      <GameInfo :message="message" />
       <ResultDisplay v-if="!gameStarted && resultsAvailable" :results="results" @rebet="rebet" @new-bet="newBet" />
     </div>
+    <div class="footer">
+      <div class="balance">Balance: ${{ balance }}</div>
+      <div class="bet">Current Bet: ${{ bet }}</div>
+    </div>
+    <div v-if="showPopup" class="popup">{{ message }}</div>
   </div>
 </template>
 
@@ -42,6 +47,11 @@ export default {
     GameInfo,
     LoadingScreen,
   },
+  data() {
+    return {
+      showPopup: false,
+    };
+  },
   computed: {
     ...mapState({
       dealerHand: state => state.dealerHand,
@@ -57,6 +67,16 @@ export default {
       availableActions: state => state.availableActions,
     }),
   },
+  watch: {
+    message(newMessage) {
+      if (newMessage) {
+        this.showPopup = true;
+        setTimeout(() => {
+          this.showPopup = false;
+        }, 3000);
+      }
+    },
+  },
   methods: {
     ...mapActions([
       'startGame',
@@ -65,7 +85,6 @@ export default {
       'selectPositions',
       'rebet',
       'newBet',
-      'restartGame',
     ]),
   },
 };
@@ -118,6 +137,18 @@ export default {
   margin-top: 20px;
 }
 
+.footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.balance,
+.bet {
+  font-size: 20px;
+}
+
 .loading-screen {
   position: absolute;
   top: 0;
@@ -142,5 +173,19 @@ export default {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 24px;
+  z-index: 1000;
 }
 </style>

@@ -182,15 +182,8 @@ const store = createStore({
     newBet({ commit }) {
       commit("SET_BET", 0);
       commit("SET_GAME_STARTED", false);
+      commit("SET_POSITIONS_SELECTED", false);
       commit("SET_RESULTS_AVAILABLE", false);
-    },
-    restartGame({ commit, dispatch }) {
-      commit("SET_BALANCE", 1000);
-      commit("SET_BET", 0);
-      commit("SET_MESSAGE", "");
-      commit("SET_GAME_STARTED", false);
-      commit("SET_RESULTS_AVAILABLE", false);
-      dispatch("startGame");
     },
     checkForBlackjack({ commit, state }) {
       const playerValue = calculateHandValue(state.playerHands[0]);
