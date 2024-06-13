@@ -1,4 +1,3 @@
-//game.js
 import { drawCard } from "./deck";
 import { calculateHandValue } from "./utils";
 
@@ -19,15 +18,9 @@ export function checkWinner(playerHand, dealerHand) {
   const playerValue = calculateHandValue(playerHand);
   const dealerValue = calculateHandValue(dealerHand);
 
-  if (playerValue > 21) {
-    return "Dealer wins";
-  }
-  if (dealerValue > 21 || playerValue > dealerValue) {
-    return "Player wins";
-  }
-  if (playerValue < dealerValue) {
-    return "Dealer wins";
-  }
+  if (playerValue > 21) return "Dealer wins";
+  if (dealerValue > 21 || playerValue > dealerValue) return "Player wins";
+  if (playerValue < dealerValue) return "Dealer wins";
   return "Push";
 }
 

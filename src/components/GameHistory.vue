@@ -40,7 +40,7 @@ export default {
 }
 
 .history-container.open {
-  right: 0; 
+  right: 0; /* Slide in the view */
 }
 
 .history-header {

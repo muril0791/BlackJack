@@ -1,4 +1,3 @@
-//deck.js
 export function createDeck() {
   const suits = ["hearts", "diamonds", "clubs", "spades"];
   const values = [
@@ -16,15 +15,7 @@ export function createDeck() {
     "Q",
     "K",
   ];
-  const deck = [];
-
-  for (const suit of suits) {
-    for (const value of values) {
-      deck.push({ suit, value });
-    }
-  }
-
-  return deck;
+  return suits.flatMap((suit) => values.map((value) => ({ suit, value })));
 }
 
 export function shuffleDeck(deck) {
@@ -32,7 +23,6 @@ export function shuffleDeck(deck) {
     const j = Math.floor(Math.random() * (i + 1));
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
-
   return deck;
 }
 

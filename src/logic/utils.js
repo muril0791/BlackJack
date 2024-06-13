@@ -1,4 +1,3 @@
-//utils.js
 export function calculateHandValue(hand) {
   let value = 0;
   let aces = 0;

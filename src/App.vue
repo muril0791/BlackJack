@@ -6,19 +6,7 @@
       <button class="floating-button" @click="toggleHistory">History</button>
       <button class="floating-button" @click="toggleDebugTools">Debug Tools</button>
     </div>
-    <div class="game-area">
-      <div class="table">
-        <DealerHand v-if="dealerHand.length" :hand="dealerHand" />
-        <div class="positions">
-          <PositionSelection v-if="gameStarted && !positionsSelected" @select-positions="selectPositions" />
-          <PlayerHands v-if="playerHands.length" :hands="playerHands" />
-        </div>
-      </div>
-      <div class="controls">
-        <GameControls v-if="gameStarted && positionsSelected" @action="handleAction" :available-actions="availableActions" />
-        <BetSelection v-if="!gameStarted" @place-bet="placeBet" :balance="balance" />
-      </div>
-    </div>
+    <GameArea />
     <div class="info">
       <GameInfo :message="message" />
       <ResultDisplay v-if="!gameStarted && resultsAvailable" :results="results" @rebet="rebet" @new-bet="newBet" />
@@ -35,11 +23,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import DealerHand from './components/DealerHand.vue';
-import PlayerHands from './components/PlayerHands.vue';
-import BetSelection from './components/BetSelection.vue';
-import PositionSelection from './components/PositionSelection.vue';
-import GameControls from './components/GameControls.vue';
+import GameArea from './components/GameArea.vue';
 import ResultDisplay from './components/ResultDisplay.vue';
 import GameInfo from './components/GameInfo.vue';
 import LoadingScreen from './components/LoadingScreen.vue';
@@ -49,11 +33,7 @@ import DebugTools from './components/DebugTools.vue';
 export default {
   name: 'BlackjackGame',
   components: {
-    DealerHand,
-    PlayerHands,
-    BetSelection,
-    PositionSelection,
-    GameControls,
+    GameArea,
     ResultDisplay,
     GameInfo,
     LoadingScreen,
@@ -69,17 +49,13 @@ export default {
   },
   computed: {
     ...mapState({
-      dealerHand: state => state.dealerHand,
-      playerHands: state => state.playerHands,
       balance: state => state.balance,
       bet: state => state.bet,
       message: state => state.message,
       gameStarted: state => state.gameStarted,
       loading: state => state.loading,
-      positionsSelected: state => state.positionsSelected,
       results: state => state.results,
       resultsAvailable: state => state.resultsAvailable,
-      availableActions: state => state.availableActions,
       gameHistory: state => state.gameHistory,
       isNightMode: state => state.nightMode,
     }),
@@ -96,10 +72,6 @@ export default {
   },
   methods: {
     ...mapActions([
-      'startGame',
-      'handleAction',
-      'placeBet',
-      'selectPositions',
       'rebet',
       'newBet',
       'toggleNightMode',
@@ -166,36 +138,6 @@ export default {
 
 .floating-button:hover {
   background-color: #2980b9;
-}
-
-.game-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.table {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  background-color: #006400;
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.positions {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: 20px;
 }
 
 .info {

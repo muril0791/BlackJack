@@ -28,7 +28,7 @@ const store = createStore({
     availableActions: {},
     lastBet: 0,
     gameHistory: [],
-    nightMode: true,
+    nightMode: false,
   },
   mutations: {
     SET_GAME_STATE(
