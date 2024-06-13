@@ -16,7 +16,7 @@
       <div class="bet">Current Bet: ${{ bet }}</div>
     </div>
     <div v-if="showPopup" class="popup">{{ message }}</div>
-    <GameHistory v-if="showHistory" :history="gameHistory" @close="toggleHistory"/>
+    <GameHistory v-if="showHistory" :history="gameHistory" @close="toggleHistory" />
     <DebugTools v-if="showDebugTools" />
   </div>
 </template>
@@ -31,7 +31,7 @@ import GameHistory from './components/GameHistory.vue';
 import DebugTools from './components/DebugTools.vue';
 
 export default {
-  name: 'BlackjackGame',
+  name: 'App',
   components: {
     GameArea,
     ResultDisplay,
@@ -182,8 +182,13 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .popup {

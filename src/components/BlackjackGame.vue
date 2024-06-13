@@ -4,20 +4,9 @@
     <div class="menu-buttons">
       <button class="floating-button" @click="toggleNightMode">Night Mode</button>
       <button class="floating-button" @click="toggleHistory">History</button>
+      <button class="floating-button" @click="toggleDebugTools">Debug Tools</button>
     </div>
-    <div class="game-area">
-      <div class="table">
-        <DealerHand v-if="dealerHand.length" :hand="dealerHand" />
-        <div class="positions">
-          <PositionSelection v-if="gameStarted && !positionsSelected" @select-positions="selectPositions" />
-          <PlayerHands v-if="playerHands.length" :hands="playerHands" />
-        </div>
-      </div>
-      <div class="controls">
-        <GameControls v-if="gameStarted && positionsSelected" @action="handleAction" :available-actions="availableActions" />
-        <BetSelection v-if="!gameStarted" @place-bet="placeBet" :balance="balance" />
-      </div>
-    </div>
+    <GameArea />
     <div class="info">
       <GameInfo :message="message" />
       <ResultDisplay v-if="!gameStarted && resultsAvailable" :results="results" @rebet="rebet" @new-bet="newBet" />
@@ -27,54 +16,46 @@
       <div class="bet">Current Bet: ${{ bet }}</div>
     </div>
     <div v-if="showPopup" class="popup">{{ message }}</div>
-    <GameHistory v-if="showHistory" :history="gameHistory" @close="toggleHistory"/>
+    <GameHistory v-if="showHistory" :history="gameHistory" @close="toggleHistory" />
+    <DebugTools v-if="showDebugTools" />
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import DealerHand from './DealerHand.vue';
-import PlayerHands from './PlayerHands.vue';
-import BetSelection from './BetSelection.vue';
-import PositionSelection from './PositionSelection.vue';
-import GameControls from './GameControls.vue';
-import ResultDisplay from './ResultDisplay.vue';
-import GameInfo from './GameInfo.vue';
-import LoadingScreen from './LoadingScreen.vue';
-import GameHistory from './GameHistory.vue';
+import GameArea from './components/GameArea.vue';
+import ResultDisplay from './components/ResultDisplay.vue';
+import GameInfo from './components/GameInfo.vue';
+import LoadingScreen from './components/LoadingScreen.vue';
+import GameHistory from './components/GameHistory.vue';
+import DebugTools from './components/DebugTools.vue';
 
 export default {
-  name: 'BlackjackGame',
+  name: 'App',
   components: {
-    DealerHand,
-    PlayerHands,
-    BetSelection,
-    PositionSelection,
-    GameControls,
+    GameArea,
     ResultDisplay,
     GameInfo,
     LoadingScreen,
     GameHistory,
+    DebugTools,
   },
   data() {
     return {
       showPopup: false,
       showHistory: false,
+      showDebugTools: false,
     };
   },
   computed: {
     ...mapState({
-      dealerHand: state => state.dealerHand,
-      playerHands: state => state.playerHands,
       balance: state => state.balance,
       bet: state => state.bet,
       message: state => state.message,
       gameStarted: state => state.gameStarted,
       loading: state => state.loading,
-      positionsSelected: state => state.positionsSelected,
       results: state => state.results,
       resultsAvailable: state => state.resultsAvailable,
-      availableActions: state => state.availableActions,
       gameHistory: state => state.gameHistory,
       isNightMode: state => state.nightMode,
     }),
@@ -91,10 +72,6 @@ export default {
   },
   methods: {
     ...mapActions([
-      'startGame',
-      'handleAction',
-      'placeBet',
-      'selectPositions',
       'rebet',
       'newBet',
       'toggleNightMode',
@@ -104,6 +81,9 @@ export default {
     },
     toggleHistory() {
       this.showHistory = !this.showHistory;
+    },
+    toggleDebugTools() {
+      this.showDebugTools = !this.showDebugTools;
     },
   },
   mounted() {
@@ -160,36 +140,6 @@ export default {
   background-color: #2980b9;
 }
 
-.game-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.table {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  background-color: #006400;
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.positions {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: 20px;
-}
-
 .info {
   display: flex;
   flex-direction: column;
@@ -232,8 +182,13 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .popup {

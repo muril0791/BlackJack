@@ -28,7 +28,8 @@ export default {
 .history-container {
   position: fixed;
   top: 0;
-  right: 0px; /* Initial position outside of the view */
+  right: -300px;
+  /* Initial position outside of the view */
   width: 300px;
   height: 100%;
   background-color: #444;
@@ -40,7 +41,8 @@ export default {
 }
 
 .history-container.open {
-  right: 0; /* Slide in the view */
+  right: 0;
+  /* Slide in the view */
 }
 
 .history-header {

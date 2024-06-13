@@ -8,7 +8,8 @@
       </div>
     </div>
     <div class="controls">
-      <GameControls v-if="gameStarted && positionsSelected" @action="handleAction" :available-actions="availableActions" />
+      <GameControls v-if="gameStarted && positionsSelected" @action="handleAction"
+        :available-actions="availableActions" />
       <BetSelection v-if="!gameStarted" @place-bet="placeBet" :balance="balance" />
     </div>
   </div>
