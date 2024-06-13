@@ -28,7 +28,7 @@ export default {
 .history-container {
   position: fixed;
   top: 0;
-  right: -300px;
+  right: 0px;
   /* Initial position outside of the view */
   width: 300px;
   height: 100%;
