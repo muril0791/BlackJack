@@ -1,10 +1,8 @@
 <template>
   <div class="result-display">
-    <div v-for="result in results" :key="result.hand" class="result">
-      {{ result.hand }}: {{ result.message }}
-    </div>
-    <button @click="$emit('rebet')" class="result-button">Rebet</button>
-    <button @click="$emit('new-bet')" class="result-button">New Bet</button>
+    <p>{{ results }}</p>
+    <button @click="$emit('rebet')">Rebet</button>
+    <button @click="$emit('new-bet')">New Bet</button>
   </div>
 </template>
 
@@ -12,24 +10,18 @@
 export default {
   name: 'ResultDisplay',
   props: {
-    results: Array,
+    results: String,
   },
 };
 </script>
 
 <style scoped>
 .result-display {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;
+  margin-top: 20px;
 }
 
-.result {
-  margin: 10px 0;
-  font-size: 18px;
-}
-
-.result-button {
+button {
   margin: 10px;
   padding: 10px 20px;
   font-size: 16px;
@@ -41,7 +33,7 @@ export default {
   transition: background-color 0.3s;
 }
 
-.result-button:hover {
+button:hover {
   background-color: #3498db;
 }
 </style>

@@ -1,13 +1,21 @@
 <template>
   <div class="game-container">
     <LoadingScreen v-if="loading" />
-    <DealerHand v-if="dealerHand.length" :hand="dealerHand" />
-    <PlayerHands v-if="playerHands.length" :hands="playerHands" />
-    <BetSelection v-if="!gameStarted" @place-bet="placeBet" :balance="balance" />
-    <PositionSelection v-if="gameStarted && !positionsSelected" @select-positions="selectPositions" />
-    <GameControls v-if="gameStarted && positionsSelected" @action="handleAction" :available-actions="availableActions" />
-    <ResultDisplay v-if="!gameStarted && resultsAvailable" :results="results" @rebet="rebet" @new-bet="newBet" />
-    <GameInfo :message="message" :balance="balance" :bet="bet" @restart="restartGame" />
+    <div class="table">
+      <DealerHand v-if="dealerHand.length" :hand="dealerHand" />
+      <div class="positions">
+        <PositionSelection v-if="gameStarted && !positionsSelected" @select-positions="selectPositions" />
+        <PlayerHands v-if="playerHands.length" :hands="playerHands" />
+      </div>
+      <div class="controls">
+        <GameControls v-if="gameStarted && positionsSelected" @action="handleAction" :available-actions="availableActions" />
+        <BetSelection v-if="!gameStarted" @place-bet="placeBet" :balance="balance" />
+      </div>
+    </div>
+    <div class="info">
+      <GameInfo :message="message" :balance="balance" :bet="bet" @restart="restartGame" />
+      <ResultDisplay v-if="!gameStarted && resultsAvailable" :results="results" @rebet="rebet" @new-bet="newBet" />
+    </div>
   </div>
 </template>
 
@@ -74,6 +82,40 @@ export default {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background-color: #006400;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.positions {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 20px;
 }
 
 .loading-screen {
@@ -100,75 +142,5 @@ export default {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-.dealer-hand,
-.player-hand {
-  display: flex;
-  flex-direction: row;
-  margin: 20px 0;
-  position: relative;
-}
-
-.hand-value {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 18px;
-  color: #fff;
-}
-
-.controls-container {
-  margin-top: 20px;
-}
-
-.info-container {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.message {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.balance,
-.bet {
-  font-size: 20px;
-}
-
-.restart-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #2980b9;
-  color: #ecf0f1;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.restart-button:hover {
-  background-color: #3498db;
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #2980b9;
-  color: #ecf0f1;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #3498db;
 }
 </style>

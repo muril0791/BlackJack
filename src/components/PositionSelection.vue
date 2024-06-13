@@ -1,8 +1,8 @@
 <template>
   <div class="position-selection">
-    <button v-for="position in ['left', 'middle', 'right']" :key="position" @click="selectPosition(position)">
-      {{ position }}
-    </button>
+    <button @click="selectPosition('left')">Left</button>
+    <button @click="selectPosition('middle')">Middle</button>
+    <button @click="selectPosition('right')">Right</button>
   </div>
 </template>
 
@@ -11,7 +11,7 @@ export default {
   name: 'PositionSelection',
   methods: {
     selectPosition(position) {
-      this.$emit('select-positions', [position]);  // Envia um array contendo a posição selecionada
+      this.$emit('select-positions', [position]); // Emite um array com a posição selecionada
     },
   },
 };

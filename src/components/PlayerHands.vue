@@ -2,7 +2,7 @@
   <div class="player-hands">
     <div v-for="(hand, index) in hands" :key="index" class="player-hand">
       <Card v-for="(card, cardIndex) in hand" :key="cardIndex" :card="card" />
-      <div class="hand-value">Total: {{ calculateHandValue(hand) }}</div>
+      <div v-if="hand.length" class="hand-value">Total: {{ calculateHandValue(hand) }}</div>
     </div>
   </div>
 </template>
@@ -26,14 +26,13 @@ export default {
 <style scoped>
 .player-hands {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: space-around;
+  width: 100%;
 }
 
 .player-hand {
   display: flex;
   flex-direction: row;
-  margin: 20px 0;
   position: relative;
 }
 

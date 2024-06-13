@@ -1,8 +1,9 @@
 <template>
   <div class="bet-selection">
-    <button v-for="amount in [1, 5, 10, 20, 50, 100]" :key="amount" @click="$emit('place-bet', amount)" :disabled="balance < amount">
-      ${{ amount }}
-    </button>
+    <button @click="placeBet(10)">10</button>
+    <button @click="placeBet(20)">20</button>
+    <button @click="placeBet(50)">50</button>
+    <button @click="placeBet(100)">100</button>
   </div>
 </template>
 
@@ -11,6 +12,15 @@ export default {
   name: 'BetSelection',
   props: {
     balance: Number,
+  },
+  methods: {
+    placeBet(amount) {
+      if (this.balance >= amount) {
+        this.$emit('place-bet', amount);
+      } else {
+        alert('Insufficient balance');
+      }
+    },
   },
 };
 </script>
@@ -26,7 +36,7 @@ export default {
   margin: 0 10px;
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #27ae60;
+  background-color: #2980b9;
   color: #ecf0f1;
   border: none;
   border-radius: 5px;
@@ -34,12 +44,7 @@ export default {
   transition: background-color 0.3s;
 }
 
-.bet-selection button:disabled {
-  background-color: grey;
-  cursor: not-allowed;
-}
-
-.bet-selection button:hover:not(:disabled) {
-  background-color: #2ecc71;
+.bet-selection button:hover {
+  background-color: #3498db;
 }
 </style>

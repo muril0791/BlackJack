@@ -20,8 +20,8 @@ export default {
 
 <style scoped>
 .info-container {
-  margin-top: 20px;
   text-align: center;
+  margin-top: 20px;
 }
 
 .message {
