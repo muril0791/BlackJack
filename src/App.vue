@@ -4,6 +4,7 @@
     <div class="menu-buttons">
       <button class="floating-button" @click="toggleNightMode">Night Mode</button>
       <button class="floating-button" @click="toggleHistory">History</button>
+      <button class="floating-button" @click="toggleDebugTools">Debug Tools</button>
     </div>
     <div class="game-area">
       <div class="table">
@@ -28,6 +29,7 @@
     </div>
     <div v-if="showPopup" class="popup">{{ message }}</div>
     <GameHistory v-if="showHistory" :history="gameHistory" @close="toggleHistory"/>
+    <DebugTools v-if="showDebugTools" />
   </div>
 </template>
 
@@ -42,6 +44,7 @@ import ResultDisplay from './components/ResultDisplay.vue';
 import GameInfo from './components/GameInfo.vue';
 import LoadingScreen from './components/LoadingScreen.vue';
 import GameHistory from './components/GameHistory.vue';
+import DebugTools from './components/DebugTools.vue';
 
 export default {
   name: 'BlackjackGame',
@@ -55,11 +58,13 @@ export default {
     GameInfo,
     LoadingScreen,
     GameHistory,
+    DebugTools,
   },
   data() {
     return {
       showPopup: false,
       showHistory: false,
+      showDebugTools: false,
     };
   },
   computed: {
@@ -104,6 +109,9 @@ export default {
     },
     toggleHistory() {
       this.showHistory = !this.showHistory;
+    },
+    toggleDebugTools() {
+      this.showDebugTools = !this.showDebugTools;
     },
   },
   mounted() {
