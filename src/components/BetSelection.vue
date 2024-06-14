@@ -1,5 +1,6 @@
 <template>
   <div class="bet-selection">
+    <p>Place Bet</p>
     <button v-for="amount in [10, 20, 50, 100]" :key="amount" :disabled="amount > balance" @click="placeBet(amount)">{{ amount }}</button>
   </div>
 </template>
